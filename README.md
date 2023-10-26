@@ -1,2 +1,3 @@
 # juegodePares
-Primer trabajo de programacion 2
+# Primer Trabajo de Programacion 2
+
