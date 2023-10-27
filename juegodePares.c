@@ -10,7 +10,13 @@ Una palabra es un arreglo de caracteres.
 Podemos hacer que sea una estrutura.
 Y crear una matriz de esta estructura.
 Se declararia como: palabra matrizpalabras[2][2] por ejemplo
-*/
+*/\
+typedef struct juego
+{
+    int numerodejuego;
+    palabra matrizpalabras;
+};
+
 
 typedef struct matrix{
     
