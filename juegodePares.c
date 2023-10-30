@@ -1,40 +1,53 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-typedef struct palabra{
+#define MAX_PARTICIPANTES 10
+typedef struct palabra
+{
     char texto[20];
-}palabra;
+} palabra;
 /*
 Una palabra es un arreglo de caracteres.
 Podemos hacer que sea una estrutura.
 Y crear una matriz de esta estructura.
 Se declararia como: palabra matrizpalabras[2][2] por ejemplo
-*/\
+*/
 typedef struct juego
 {
     int numerodejuego;
-    palabra matrizpalabras;
-};
+    int n;
+    palabra *matrizdePalabras;
+} juego;
 
+typedef struct nodoJuego
+{
+    juego Juego;
+    struct nodo *sig;
+} nodoJuego;
 
-typedef struct matrix{
-    
-}Matriz;
+typedef struct matrix
+{
 
+} Matriz;
 
-/*
-char matriz[N][N][NUMERO DE LETRAS];
-
-*/
+typedef struct Participante
+{
+    char nickname[20];
+    int puntaje;
+} participante;
+// declarar un vector de participantes
+participante vectorParticipantes[MAX_PARTICIPANTES];
 
 // Prototipo de funciones - Menu de inicio
 void mostrarMenu();
 void realizarAccion();
+void crearParticipante();
 
+int numParticipantes=0;
 int main()
 {
-    realizarAccion();
+    nodoJuego *headListaJuego = NULL;
+    printf("Juego bytes: %d", sizeof(palabra));
     return 0;
 }
 
@@ -62,12 +75,14 @@ void realizarAccion()
         if (scanf("%d", &opcion) != 1)
         {
             printf("Error: Ingrese un numero valido.\n");
-            while (getchar() != '\n'); // Limpia el búfer de entrada
+            while (getchar() != '\n')
+                ; // Limpia el búfer de entrada
             mostrarMenu();
         }
         else
         {
-            while (getchar() != '\n'); // Limpia el búfer de entrada
+            while (getchar() != '\n')
+                ; // Limpia el búfer de entrada
             switch (opcion)
             {
             case 1:
@@ -95,3 +110,38 @@ void realizarAccion()
         }
     }
 }
+
+void crearParticipante()
+{
+    participante nuevoParticipante;
+    
+    
+    
+}
+
+/*
+if (numParticipantes < MAX_PARTICIPANTES)
+    {
+        struct Participante nuevoParticipante;
+        printf("Ingrese el nickname del participante: ");
+        scanf("%s", nuevoParticipante.nickname);
+
+        // Verificar si ya existe un participante con el mismo nickname
+        int indiceExistente = buscarParticipantePorNickname(nuevoParticipante.nickname);
+        if (indiceExistente == -1)
+        {
+            nuevoParticipante.puntaje = 0; // Inicializar el puntaje en 0
+            vectorParticipantes[numParticipantes] = nuevoParticipante;
+            numParticipantes++;
+            printf("Participante creado exitosamente.\n");
+        }
+        else
+        {
+            printf("El nickname ya existe. No se pudo crear el participante.\n");
+        }
+    }
+    else
+    {
+        printf("No se pueden crear más participantes, se ha alcanzado el límite.\n");
+    }
+*/
