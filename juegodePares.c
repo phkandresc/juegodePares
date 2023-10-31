@@ -16,7 +16,7 @@ typedef struct juego
 {
     int numerodejuego;
     int n;
-    palabra *matrizdePalabras;
+    palabra matrizdePalabras[MAX_PARTICIPANTES][MAX_PARTICIPANTES];
 } juego;
 
 typedef struct nodoJuego
@@ -25,29 +25,33 @@ typedef struct nodoJuego
     struct nodo *sig;
 } nodoJuego;
 
-typedef struct matrix
-{
-
-} Matriz;
-
 typedef struct Participante
 {
     char nickname[20];
     int puntaje;
 } participante;
 // declarar un vector de participantes
-participante vectorParticipantes[MAX_PARTICIPANTES];
 
 // Prototipo de funciones - Menu de inicio
 void mostrarMenu();
 void realizarAccion();
 void crearParticipante();
+struct Participante *buscarParticipantePorNickname(char *nickname);
+void crearParticipante();
+void imprimirParticipantes(participante *participantes, int numParticipantes);
 
-int numParticipantes=0;
+// Vector estático para almacenar a los participantes en el stack
+participante vectorParticipantes[MAX_PARTICIPANTES];
+
+// Puntero a la primera posición del vector de participantes
+participante *primerParticipante = &vectorParticipantes[0];
+
+int numParticipantes = 0;
 int main()
 {
+    //  Puntero a la primera posicion de la lista de juegos
     nodoJuego *headListaJuego = NULL;
-    printf("Juego bytes: %d", sizeof(palabra));
+    realizarAccion();
     return 0;
 }
 
@@ -87,18 +91,25 @@ void realizarAccion()
             {
             case 1:
                 printf("Ha seleccionado la opcion 1.\n");
+                mostrarMenu();
                 break;
             case 2:
                 printf("Ha seleccionado la opcion 2.\n");
+                crearParticipante();
+                mostrarMenu();
                 break;
             case 3:
                 printf("Ha seleccionado la opcion 3.\n");
+                mostrarMenu();
                 break;
             case 4:
                 printf("Ha seleccionado la opcion 4.\n");
+                imprimirParticipantes(vectorParticipantes, numParticipantes);
+                mostrarMenu();
                 break;
             case 5:
                 printf("Ha seleccionado la opcion 5.\n");
+                mostrarMenu();
                 break;
             case 6:
                 printf("Saliendo del programa.\n");
@@ -113,25 +124,18 @@ void realizarAccion()
 
 void crearParticipante()
 {
-    participante nuevoParticipante;
-    
-    
-    
-}
-
-/*
-if (numParticipantes < MAX_PARTICIPANTES)
+    if (numParticipantes < MAX_PARTICIPANTES)
     {
-        struct Participante nuevoParticipante;
+        participante nuevoParticipante;
         printf("Ingrese el nickname del participante: ");
         scanf("%s", nuevoParticipante.nickname);
 
         // Verificar si ya existe un participante con el mismo nickname
-        int indiceExistente = buscarParticipantePorNickname(nuevoParticipante.nickname);
-        if (indiceExistente == -1)
+        participante *existente = buscarParticipantePorNickname(nuevoParticipante.nickname);
+        if (existente == NULL)
         {
             nuevoParticipante.puntaje = 0; // Inicializar el puntaje en 0
-            vectorParticipantes[numParticipantes] = nuevoParticipante;
+            *(primerParticipante + numParticipantes) = nuevoParticipante;
             numParticipantes++;
             printf("Participante creado exitosamente.\n");
         }
@@ -144,4 +148,31 @@ if (numParticipantes < MAX_PARTICIPANTES)
     {
         printf("No se pueden crear más participantes, se ha alcanzado el límite.\n");
     }
-*/
+}
+
+struct Participante *buscarParticipantePorNickname(char *nickname)
+{
+    for (int i = 0; i < numParticipantes; i++)
+    {
+        if (strcmp((primerParticipante + i)->nickname, nickname) == 0)
+        {
+            return primerParticipante + i; // Se encontró el participante
+        }
+    }
+    return NULL; // No se encontró el participante
+}
+
+void imprimirParticipantes(participante *vectorParticipantes, int numParticipantes)
+{
+    if (numParticipantes != 0)
+    {
+        printf("Lista de participantes:\n");
+        for (int i = 0; i < numParticipantes; i++)
+        {
+            printf("Participante %d:\n", i + 1);
+            printf("Nickname: %s\n", vectorParticipantes[i].nickname);
+            printf("Puntaje: %d\n", vectorParticipantes[i].puntaje);
+            printf("\n");
+        }
+    }else printf ("ERROR: Todavia no hay participantes registrados\n");
+}
