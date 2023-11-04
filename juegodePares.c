@@ -6,12 +6,7 @@ typedef struct palabra
 {
     char texto[20];
 } palabra;
-/*
-Una palabra es un arreglo de caracteres.
-Podemos hacer que sea una estrutura.
-Y crear una matriz de esta estructura.
-Se declararia como: palabra matrizpalabras[2][2] por ejemplo
-*/
+
 typedef struct juego
 {
     int numerodejuego;
@@ -35,23 +30,62 @@ typedef struct Participante
 // Prototipo de funciones - Menu de inicio
 void mostrarMenu();
 void realizarAccion();
-void crearParticipante();
-struct Participante *buscarParticipantePorNickname(char *nickname);
-void crearParticipante();
-void imprimirParticipantes(participante *participantes, int numParticipantes);
+void crearParticipante(participante *primerParticipante, int *ptr_numParticipantes);
+struct Participante *buscarParticipantePorNickname(char *nickname, participante *primerParticipante, int *ptr_numParticipantes);
+void imprimirParticipantes(participante *vectorParticipantes, int *ptr_numParticipantes);
+void crearMatriz();
 
-// Vector estático para almacenar a los participantes en el stack
-participante vectorParticipantes[MAX_PARTICIPANTES];
-
-// Puntero a la primera posición del vector de participantes
-participante *primerParticipante = &vectorParticipantes[0];
-
-int numParticipantes = 0;
 int main()
 {
-    //  Puntero a la primera posicion de la lista de juegos
-    nodoJuego *headListaJuego = NULL;
-    realizarAccion();
+    int opcion;
+
+    //Participantes
+    participante vectorParticipantes [MAX_PARTICIPANTES];
+    int numParticipantes = 0;
+    int *ptr_numParticipantes = &numParticipantes;
+    participante *headParticipantes = &vectorParticipantes[0];
+
+    while (1)//Menu de opciones
+    {
+        mostrarMenu();
+        if (scanf("%d", &opcion) != 1)
+        {
+            printf("Error: Ingrese un numero valido.\n");
+            while (getchar() != '\n')
+                ; // Limpia el búfer de entrada
+            mostrarMenu();
+        }
+        else
+        {
+            while (getchar() != '\n')
+                ; // Limpia el búfer de entrada
+            switch (opcion)
+            {
+            case 1:
+                printf("Ha seleccionado Crear Juego.\n");
+                break;
+            case 2:
+                printf("Ha seleccionado Crear Participante.\n");
+                crearParticipante(headParticipantes, ptr_numParticipantes);
+                break;
+            case 3:
+                printf("Ha seleccionado Jugar.\n");
+                break;
+            case 4:
+                printf("Ha seleccionado Mostrar Ranking.\n");
+                imprimirParticipantes(headParticipantes, ptr_numParticipantes);
+                break;
+            case 5:
+                printf("Ha seleccionado Datos para probar.\n");
+                break;
+            case 6:
+                printf("Saliendo del programa.\n");
+                exit(0);
+            default:
+                printf("Opcion no valida. Intente de nuevo.\n");
+            }
+        }
+    }
     return 0;
 }
 
@@ -68,75 +102,21 @@ void mostrarMenu()
     printf("6. Salir\n");
 }
 
-void realizarAccion()
+void crearParticipante(participante *primerParticipante, int *numParticipantes)
 {
-    int opcion;
-    mostrarMenu();
-    printf("Seleccione una opcion: ");
-
-    while (1)
-    {
-        if (scanf("%d", &opcion) != 1)
-        {
-            printf("Error: Ingrese un numero valido.\n");
-            while (getchar() != '\n')
-                ; // Limpia el búfer de entrada
-            mostrarMenu();
-        }
-        else
-        {
-            while (getchar() != '\n')
-                ; // Limpia el búfer de entrada
-            switch (opcion)
-            {
-            case 1:
-                printf("Ha seleccionado la opcion 1.\n");
-                mostrarMenu();
-                break;
-            case 2:
-                printf("Ha seleccionado la opcion 2.\n");
-                crearParticipante();
-                mostrarMenu();
-                break;
-            case 3:
-                printf("Ha seleccionado la opcion 3.\n");
-                mostrarMenu();
-                break;
-            case 4:
-                printf("Ha seleccionado la opcion 4.\n");
-                imprimirParticipantes(vectorParticipantes, numParticipantes);
-                mostrarMenu();
-                break;
-            case 5:
-                printf("Ha seleccionado la opcion 5.\n");
-                mostrarMenu();
-                break;
-            case 6:
-                printf("Saliendo del programa.\n");
-                exit(0);
-            default:
-                printf("Opcion no valida. Intente de nuevo.\n");
-                mostrarMenu();
-            }
-        }
-    }
-}
-
-void crearParticipante()
-{
-    if (numParticipantes < MAX_PARTICIPANTES)
+    if (*numParticipantes < MAX_PARTICIPANTES)
     {
         participante nuevoParticipante;
         printf("Ingrese el nickname del participante: ");
         scanf("%s", nuevoParticipante.nickname);
 
         // Verificar si ya existe un participante con el mismo nickname
-        participante *existente = buscarParticipantePorNickname(nuevoParticipante.nickname);
+        participante *existente = buscarParticipantePorNickname(nuevoParticipante.nickname, primerParticipante, numParticipantes);
         if (existente == NULL)
         {
             nuevoParticipante.puntaje = 0; // Inicializar el puntaje en 0
-            *(primerParticipante + numParticipantes) = nuevoParticipante;
-            numParticipantes++;
+            *(primerParticipante + *numParticipantes) = nuevoParticipante;
+            (*numParticipantes)++;
             printf("Participante creado exitosamente.\n");
         }
         else
@@ -150,9 +130,9 @@ void crearParticipante()
     }
 }
 
-struct Participante *buscarParticipantePorNickname(char *nickname)
+participante *buscarParticipantePorNickname(char *nickname, participante *primerParticipante, int *numParticipantes)
 {
-    for (int i = 0; i < numParticipantes; i++)
+    for (int i = 0; i < *numParticipantes; i++)
     {
         if (strcmp((primerParticipante + i)->nickname, nickname) == 0)
         {
@@ -162,17 +142,35 @@ struct Participante *buscarParticipantePorNickname(char *nickname)
     return NULL; // No se encontró el participante
 }
 
-void imprimirParticipantes(participante *vectorParticipantes, int numParticipantes)
+void imprimirParticipantes(participante *vectorParticipantes, int *numParticipantes)
 {
-    if (numParticipantes != 0)
+    if (*numParticipantes != 0)
     {
         printf("Lista de participantes:\n");
-        for (int i = 0; i < numParticipantes; i++)
+        for (int i = 0; i < *numParticipantes; i++)
         {
             printf("Participante %d:\n", i + 1);
             printf("Nickname: %s\n", vectorParticipantes[i].nickname);
             printf("Puntaje: %d\n", vectorParticipantes[i].puntaje);
             printf("\n");
         }
-    }else printf ("ERROR: Todavia no hay participantes registrados\n");
+    }
+    else
+        printf("ERROR: Todavia no hay participantes registrados\n");
+}
+
+void crearMatriz()
+{
+    int dimension;
+    printf("Ingrese la dimension del tablero para jugar\n");
+    printf("Solo numeros pares...");
+    scanf("%d", &dimension);
+    while (dimension % 2 != 0)
+    {
+        printf("ERROR: Ingrese un numero par para la dimension del tablero\n");
+        printf("Ingrese la dimension del tablero para jugar\n");
+        printf("Solo numeros pares...");
+        scanf("%d", &dimension);
+    }
+    printf("Creado exitosamente\n");
 }
