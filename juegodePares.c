@@ -49,14 +49,13 @@ bool validarNickname(const char *nickname);
 
 void agregarJuego(ListaJuegos *juegos, juego *nuevoJuego);
 juego *crearJuego(int *numero, ListaJuegos *juegos);
-void imprimirMatriz(ListaJuegos *juegos, int numeroJuego);
+void imprimirMatriz(juego *juegoSeleccionado);
 
 // Prototipo de funciones - Jugar
 void mostrarMatrizConCeldaVisible(juego *juegoSeleccionado, int fila, int columna);
 void mezclarPalabrasEnMatriz(juego *juego);
-void jugar(ListaJuegos *listaJUEGOS, participante *headParticipantes, int *numParticipantes);
 juego *elegirJuegoAleatorio(ListaJuegos *juegos);
-void jugar2(juego *juegoSeleccionado);
+void jugar(juego *juegoSeleccionado, participante *headParticipantes, int *numParticipantes);
 
 // Prototipo de funciones - Probar
 juego *crearJuegoRapido(int *numero, ListaJuegos *juegos);
@@ -105,9 +104,18 @@ int main()
                 break;
             case 3:
                 printf("Ha seleccionado Jugar.\n");
-                juego *juegoSeleccionado = elegirJuegoAleatorio(&listaJUEGOS);
-                jugar2(juegoSeleccionado);
-                // jugar(&listaJUEGOS, headParticipantes, ptr_numParticipantes);
+                if (listaJUEGOS.primerNodo != NULL)
+                {
+                    juego *juegoSeleccionado = elegirJuegoAleatorio(&listaJUEGOS);
+                    imprimirMatriz(juegoSeleccionado);
+                    jugar(juegoSeleccionado, headParticipantes, ptr_numParticipantes);
+                    system("pause");
+                }
+                else
+                {
+                    printf("ERROR: Aun no se han creado juegos\n");
+                    system("pause");
+                }
                 break;
             case 4:
                 printf("Ha seleccionado Mostrar Ranking.\n");
@@ -128,6 +136,7 @@ int main()
                 break;
             case 6:
                 printf("Saliendo del programa.\n");
+                // liberar memoria
                 exit(0);
             default:
                 printf("Opcion no valida. Intente de nuevo.\n");
@@ -317,38 +326,22 @@ void agregarJuego(ListaJuegos *juegos, juego *nuevoJuego)
     }
 }
 
-void imprimirMatriz(ListaJuegos *juegos, int numeroJuego)
+// Imprimir matriz con celdas ocultas
+void imprimirMatriz(juego *juegoSeleccionado)
 {
-    NodoJuego *nodoActual = juegos->primerNodo;
-    while (nodoActual != NULL)
+    printf("Matriz del Juego %d:\n", juegoSeleccionado->numerodeJuego);
+    for (int i = 0; i < juegoSeleccionado->dimension; i++)
     {
-        if (nodoActual->juego->numerodeJuego == numeroJuego)
+        for (int j = 0; j < juegoSeleccionado->dimension; j++)
         {
-
-            printf("Matriz del Juego %d:\n", nodoActual->juego->numerodeJuego);
-            for (int j = 0; j < nodoActual->juego->dimension; j++)
-            {
-
-                printf("\t[%d]\t", j);
-            }
-            printf("\n");
-            for (int i = 0; i < nodoActual->juego->dimension; i++)
-            {
-                printf("[%d]", i);
-                for (int j = 0; j < nodoActual->juego->dimension; j++)
-                {
-
-                    printf("\t[%s]\t", nodoActual->juego->matriz[i][j].texto);
-                }
-                printf("\n");
-            }
-            return; // Salir una vez que se ha encontrado y mostrado el juego
+            printf("[*****]\t");
         }
-        nodoActual = nodoActual->siguiente;
+        printf("\n");
     }
-    printf("Juego no encontrado.\n");
+    return;
 }
 
+// Funcion que muestra las coordenadas elegidas durante el juego
 void mostrarMatrizConCeldaVisible(juego *juegoSeleccionado, int fila, int columna)
 {
     printf("Matriz del Juego %d con celda [%d][%d] visible:\n", juegoSeleccionado->numerodeJuego, fila, columna);
@@ -362,7 +355,6 @@ void mostrarMatrizConCeldaVisible(juego *juegoSeleccionado, int fila, int column
             }
             else
             {
-                // Puedes ajustar este bloque según tus necesidades, marcando las palabras encontradas de alguna manera
                 if (juegoSeleccionado->matriz[i][j].encontrada == true)
                 {
                     printf("[ %s ]\t", juegoSeleccionado->matriz[i][j].texto);
@@ -377,6 +369,7 @@ void mostrarMatrizConCeldaVisible(juego *juegoSeleccionado, int fila, int column
     }
 }
 
+// Funcion que mezcla las palabras de una matriz
 void mezclarPalabrasEnMatriz(juego *juego)
 { /*
  En cada iteración del bucle, se generan dos números aleatorios x e y, que representan las coordenadas de otra celda en la matriz.
@@ -407,6 +400,7 @@ void mezclarPalabrasEnMatriz(juego *juego)
     }
 }
 
+// Funcion que crea un juego rapido. Opcion 5
 juego *crearJuegoRapido(int *numero, ListaJuegos *juegos)
 {
     juego *nuevoJuego = (juego *)malloc(sizeof(juego));
@@ -446,123 +440,100 @@ juego *crearJuegoRapido(int *numero, ListaJuegos *juegos)
     return nuevoJuego;
 }
 
-void jugar(ListaJuegos *listaJUEGOS, participante *headParticipantes, int *numParticipantes)
-// inicializar puntaje
-{
-    if (listaJUEGOS->primerNodo != NULL && headParticipantes->nickname != NULL) // Validar que existan juegos y participantes
-    {
-        participante Jugador = ingresarParticipante();
-        if (buscarParticipantePorNickname(Jugador.nickname, headParticipantes, numParticipantes) != NULL)
-        { // Validar participante para jugar
-            printf("BIENVENIDO AL JUEGO, %s\n", Jugador.nickname);
-            // int juego = juegoAleatorio(listaJUEGOS);
-            // mostrarMatrizConCeldaVisible(listaJUEGOS, juego);
-
-            /*
-            Una vez validado los juegos, e ingresado con un usuario valido.
-            elegir un juego al azar de la lista ligada listaJUEGOS
-            Inicializar numero de intentos:
-            numero de celdas / 2 + 30%
-            Cada par aumenta +1 el puntaje
-            El puntaje maximo que se puede alcanzar es
-            el numero de celdas / 2 p
-
-            int juego = juegoAleatorio(listaJUEGOS);
-            mostrarMatrizConCeldaVisible(listaJUEGOS, juego);
-            */
-            // funcion que me retorne un int para numero de juego;
-        }
-        else
-        {
-            printf("ERROR: No se ha encontrado el participante con el que desea jugar\n");
-            printf("Intentelo nuevamente...\n");
-        }
-    }
-    else
-    {
-        printf("ERROR: No se puede jugar\n");
-        printf("Recuerde crear juegos y registrarse como participante\n");
-        printf("Intentelo nuevamente...\n");
-        system("pause");
-    }
-}
-
 // Función para jugar el juego seleccionado
-void jugar2(juego *juegoSeleccionado)
+void jugar(juego *juegoSeleccionado, participante *headParticipantes, int *numParticipantes)
 {
     int puntaje = 0;
     int intentos = (juegoSeleccionado->dimension * juegoSeleccionado->dimension) / 2 + (int)(0.3 * (juegoSeleccionado->dimension * juegoSeleccionado->dimension));
     int fila1, columna1, fila2, columna2;
 
-    // Aquí comienza la lógica principal del juego
-    while (intentos > 0)
+    // Inicializar jugador
+    participante Jugador = ingresarParticipante();
+    // Validar participante para jugar
+    if (buscarParticipantePorNickname(Jugador.nickname, headParticipantes, numParticipantes) != NULL)
     {
-        // Obtener la entrada del usuario para encontrar un par
-        do
+        participante *ptrJugador = buscarParticipantePorNickname(Jugador.nickname, headParticipantes, numParticipantes);
+        printf("BIENVENIDO AL JUEGO, %s\n", ptrJugador->nickname);
+
+        // Aquí comienza la lógica principal del juego
+        while (intentos > 0 && puntaje != (juegoSeleccionado->dimension * juegoSeleccionado->dimension / 2))
         {
             // Obtener la entrada del usuario para encontrar un par
-            printf("Ingrese la fila de la primera celda que desea seleccionar: ");
-            scanf("%d", &fila1);
-            printf("Ingrese la columna de la primera celda que desea seleccionar: ");
-            scanf("%d", &columna1);
-            // Validar que las filas y columnas estén dentro del rango
-            if (fila1 < 0 || fila1 >= juegoSeleccionado->dimension || columna1 < 0 || columna1 >= juegoSeleccionado->dimension)
+            do
             {
-                printf("Al menos una celda fuera de los limites de la matriz.\n");
-                printf("Intentelo nuevamente...\n");
-                continue;
-            }
-            mostrarMatrizConCeldaVisible(juegoSeleccionado, fila1, columna1);
-            juegoSeleccionado->matriz[fila1][columna1].encontrada = true;
+                printf("Ingrese la fila de la primera celda que desea seleccionar: ");
+                scanf("%d", &fila1);
+                printf("Ingrese la columna de la primera celda que desea seleccionar: ");
+                scanf("%d", &columna1);
+                // Validar que las filas y columnas estén dentro del rango
+                if (fila1 < 0 || fila1 >= juegoSeleccionado->dimension || columna1 < 0 || columna1 >= juegoSeleccionado->dimension)
+                {
+                    printf("Al menos una celda fuera de los limites de la matriz.\n");
+                    printf("Intentelo nuevamente...\n");
+                    continue;
+                }
+                mostrarMatrizConCeldaVisible(juegoSeleccionado, fila1, columna1);
+                juegoSeleccionado->matriz[fila1][columna1].encontrada = true;
 
-            printf("Ingrese la fila de la segunda celda que desea seleccionar: ");
-            scanf("%d", &fila2);
-            printf("Ingrese la columna de la segunda celda que desea seleccionar: ");
-            scanf("%d", &columna2);
-            // Validar que las filas y columnas estén dentro del rango
-            if (fila2 < 0 || fila2 >= juegoSeleccionado->dimension || columna2 < 0 || columna2 >= juegoSeleccionado->dimension)
+                printf("Ingrese la fila de la segunda celda que desea seleccionar: ");
+                scanf("%d", &fila2);
+                printf("Ingrese la columna de la segunda celda que desea seleccionar: ");
+                scanf("%d", &columna2);
+                // Validar que las filas y columnas estén dentro del rango
+                if (fila2 < 0 || fila2 >= juegoSeleccionado->dimension || columna2 < 0 || columna2 >= juegoSeleccionado->dimension)
+                {
+                    printf("Al menos una celda fuera de los limites de la matriz.\n");
+                    printf("Intentelo nuevamente...\n");
+                    continue;
+                }
+                mostrarMatrizConCeldaVisible(juegoSeleccionado, fila2, columna2);
+                juegoSeleccionado->matriz[fila2][columna2].encontrada = true;
+
+                // Validar que las coordenadas no sean las mismas
+                if (fila1 == fila2 && columna1 == columna2)
+                {
+                    printf("Las coordenadas deben ser diferentes.\n");
+                    juegoSeleccionado->matriz[fila1][columna1].encontrada = false;
+                    juegoSeleccionado->matriz[fila2][columna2].encontrada = false;
+                    continue; // Volver al comienzo del bucle para pedir la entrada nuevamente
+                }
+                break; // Sale del bucle
+            } while (1);
+
+            // Una vez validadas las coordenadas
+            // Verificar si las palabras en las coordenadas forman un par
+            if (strcmp(juegoSeleccionado->matriz[fila1][columna1].texto, juegoSeleccionado->matriz[fila2][columna2].texto) == 0)
             {
-                printf("Al menos una celda fuera de los limites de la matriz.\n");
-                printf("Intentelo nuevamente...\n");
-                continue;
+                // Las palabras son iguales, forman un par
+                printf("Has encontrado un par!, %s\n", ptrJugador->nickname);
+                puntaje++;
             }
-            mostrarMatrizConCeldaVisible(juegoSeleccionado, fila2, columna2);
-            juegoSeleccionado->matriz[fila2][columna2].encontrada = true;
-            // Validar que las coordenadas no sean las mismas
-            if (fila1 == fila2 && columna1 == columna2)
+            else
             {
-                printf("Las coordenadas deben ser diferentes.\n");
-                continue; // Volver al comienzo del bucle para pedir la entrada nuevamente
+                // Las palabras no son iguales
+                juegoSeleccionado->matriz[fila1][columna1].encontrada = false;
+                juegoSeleccionado->matriz[fila2][columna2].encontrada = false;
+                printf("No es un par, \n", ptrJugador->nickname);
             }
 
-            break; // Sale del bucle
-        } while (1);
-
-        // Verificar si las palabras en las coordenadas forman un par
-        if (strcmp(juegoSeleccionado->matriz[fila1][columna1].texto, juegoSeleccionado->matriz[fila2][columna2].texto) == 0)
-        {
-            // Las palabras son iguales, forman un par
-            printf("Has encontrado un par!\n");
-            puntaje++;
+            // Decrementar el número de intentos
+            intentos--;
+            printf("Jugador: %s\tPuntaje: %d\tIntentos restantes: %d\n", ptrJugador->nickname, puntaje, intentos);
         }
-        else
-        {
-            // Las palabras no son iguales
-            juegoSeleccionado->matriz[fila1][columna1].encontrada = false;
-            juegoSeleccionado->matriz[fila2][columna2].encontrada = false;
-            printf("No es un par.\n");
-        }
+        // Se guarda el puntaje en el jugador
+        ptrJugador->puntaje = puntaje;
 
-        // Decrementar el número de intentos
-        intentos--;
-        printf("Puntaje: %d\tIntentos restantes: %d\n", puntaje, intentos);
+        // Mostrar el resultado final del juego
+        printf("Juego terminado.\nJugador: %s\t Puntaje final: %d\n", ptrJugador->nickname, puntaje);
     }
-
-    // Mostrar el resultado final del juego
-    printf("Juego terminado. Puntaje final: %d\n", puntaje);
-    system("pause");
+    else
+    {
+        printf("ERROR: No se ha encontrado el participante con el que desea jugar\n");
+        printf("Intentelo nuevamente...\n");
+    }
 }
 
+// Funcion para elegir un juego al azar de la lista ligada
 juego *elegirJuegoAleatorio(ListaJuegos *juegos)
 {
     int elementos = 0;
@@ -589,4 +560,39 @@ juego *elegirJuegoAleatorio(ListaJuegos *juegos)
             juegoSeleccionado = juegoSeleccionado->siguiente;
     }
     return juegoSeleccionado->juego;
+}
+
+// Función para comparar participantes según sus puntajes (para qsort)
+int compararPuntajes(const void *a, const void *b)
+{
+    return ((participante *)b)->puntaje - ((participante *)a)->puntaje;
+}
+
+// Función para generar y presentar el ranking
+void presentarRanking(participante *vectorParticipantes, int *numParticipantes)
+{
+    // Crear un arreglo de punteros a participantes
+    participante *ranking[MAX_PARTICIPANTES];
+    if (*numParticipantes != 0)
+    {
+        // Inicializar el arreglo de punteros
+        for (int i = 0; i < *numParticipantes; i++)
+        {
+            ranking[i] = &vectorParticipantes[i];
+        }
+
+        // Ordenar el arreglo de punteros basado en los puntajes (de mejor a peor)
+        qsort(ranking, numParticipantes, sizeof(participante *), compararPuntajes);
+
+        // Presentar el ranking en la pantalla
+        printf("Ranking de participantes:\n");
+        for (int i = 0; i < *numParticipantes; i++)
+        {
+            printf("%d. %s - Puntaje: %d\n", i + 1, ranking[i]->nickname, ranking[i]->puntaje);
+        }
+    }
+    else
+    {
+        printf("ERROR: Todavia no hay participantes registrados\n");
+    }
 }
