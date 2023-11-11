@@ -49,17 +49,23 @@ bool validarNickname(const char *nickname);
 
 void agregarJuego(ListaJuegos *juegos, juego *nuevoJuego);
 juego *crearJuego(int *numero, ListaJuegos *juegos);
-void imprimirMatriz(juego *juegoSeleccionado);
 
 // Prototipo de funciones - Jugar
 void mostrarMatrizConCeldaVisible(juego *juegoSeleccionado, int fila, int columna);
+void imprimirMatriz(juego *juegoSeleccionado);
 void mezclarPalabrasEnMatriz(juego *juego);
 juego *elegirJuegoAleatorio(ListaJuegos *juegos);
 void jugar(juego *juegoSeleccionado, participante *headParticipantes, int *numParticipantes);
 
+// Prototipo de funciones - Mostrar ranking
+void presentarRanking(participante *vectorParticipantes, int *numParticipantes);
+int compararPuntajes(const void *a, const void *b);
+
 // Prototipo de funciones - Probar
 juego *crearJuegoRapido(int *numero, ListaJuegos *juegos);
 
+// Prototipo de funciones - Liberar memoria
+void liberarListaJuegos(ListaJuegos *listaJuegos);
 int main()
 {
     int opcion;
@@ -119,7 +125,7 @@ int main()
                 break;
             case 4:
                 printf("Ha seleccionado Mostrar Ranking.\n");
-                imprimirParticipantes(headParticipantes, ptr_numParticipantes);
+                presentarRanking(headParticipantes, ptr_numParticipantes);
                 system("pause");
                 break;
             case 5:
@@ -135,8 +141,9 @@ int main()
                 system("pause");
                 break;
             case 6:
+                // Liberar memoria
+                liberarListaJuegos(&listaJUEGOS);
                 printf("Saliendo del programa.\n");
-                // liberar memoria
                 exit(0);
             default:
                 printf("Opcion no valida. Intente de nuevo.\n");
@@ -146,6 +153,7 @@ int main()
     return 0;
 }
 
+// Funcion que muestra el menu
 void mostrarMenu()
 {
     printf("____________________________\n");
@@ -159,6 +167,7 @@ void mostrarMenu()
     printf("6. Salir\n");
 }
 
+// Funcion que permite ingresar un participante desde el teclado
 participante ingresarParticipante()
 {
     participante nuevoParticipante;
@@ -177,6 +186,7 @@ participante ingresarParticipante()
     return nuevoParticipante;
 }
 
+// Funcion que valida que el nickname del participante
 bool validarNickname(const char *nickname)
 {
     // Verificar la longitud mínima
@@ -197,6 +207,7 @@ bool validarNickname(const char *nickname)
     return true;
 }
 
+// Funcion para crear un participante
 void crearParticipante(participante *primerParticipante, int *numParticipantes)
 {
     if (*numParticipantes < MAX_PARTICIPANTES)
@@ -222,6 +233,8 @@ void crearParticipante(participante *primerParticipante, int *numParticipantes)
     }
 }
 
+// Funcion que busca un participante en el vector Participantes y devuelve un puntero
+// a dicho participante si existe
 participante *buscarParticipantePorNickname(char *nickname, participante *primerParticipante, int *numParticipantes)
 {
     for (int i = 0; i < *numParticipantes; i++)
@@ -234,6 +247,7 @@ participante *buscarParticipantePorNickname(char *nickname, participante *primer
     return NULL; // No se encontró el participante
 }
 
+// Funcion que permite imprimir los participantes ingresados(sin orden)
 void imprimirParticipantes(participante *vectorParticipantes, int *numParticipantes)
 {
     if (*numParticipantes != 0)
@@ -582,7 +596,7 @@ void presentarRanking(participante *vectorParticipantes, int *numParticipantes)
         }
 
         // Ordenar el arreglo de punteros basado en los puntajes (de mejor a peor)
-        qsort(ranking, numParticipantes, sizeof(participante *), compararPuntajes);
+        qsort(ranking, *numParticipantes, sizeof(participante *), compararPuntajes);
 
         // Presentar el ranking en la pantalla
         printf("Ranking de participantes:\n");
@@ -595,4 +609,26 @@ void presentarRanking(participante *vectorParticipantes, int *numParticipantes)
     {
         printf("ERROR: Todavia no hay participantes registrados\n");
     }
+}
+
+// Funcion para liberar memoria usada
+void liberarListaJuegos(ListaJuegos *listaJuegos)
+{
+    NodoJuego *actual = listaJuegos->primerNodo;
+    NodoJuego *temporal;
+
+    while (actual != NULL)
+    {
+        temporal = actual;
+        actual = actual->siguiente;
+        if (temporal->juego != NULL)
+        {
+            free(temporal->juego);
+        }
+        free(temporal);
+    }
+
+    // Primer nodo de la lista como NULL
+    listaJuegos->primerNodo = NULL;
+    printf("La memoria ha sido liberada correctamente.\n");
 }
