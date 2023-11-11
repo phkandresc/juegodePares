@@ -505,20 +505,29 @@ void jugar2(juego *juegoSeleccionado)
             scanf("%d", &fila1);
             printf("Ingrese la columna de la primera celda que desea seleccionar: ");
             scanf("%d", &columna1);
+            // Validar que las filas y columnas estén dentro del rango
+            if (fila1 < 0 || fila1 >= juegoSeleccionado->dimension || columna1 < 0 || columna1 >= juegoSeleccionado->dimension)
+            {
+                printf("Al menos una celda fuera de los limites de la matriz.\n");
+                printf("Intentelo nuevamente...\n");
+                continue;
+            }
             mostrarMatrizConCeldaVisible(juegoSeleccionado, fila1, columna1);
+            juegoSeleccionado->matriz[fila1][columna1].encontrada = true;
+
             printf("Ingrese la fila de la segunda celda que desea seleccionar: ");
             scanf("%d", &fila2);
             printf("Ingrese la columna de la segunda celda que desea seleccionar: ");
             scanf("%d", &columna2);
-            mostrarMatrizConCeldaVisible(juegoSeleccionado, fila2, columna2);
             // Validar que las filas y columnas estén dentro del rango
-            if (fila1 < 0 || fila1 >= juegoSeleccionado->dimension || columna1 < 0 || columna1 >= juegoSeleccionado->dimension ||
-                fila2 < 0 || fila2 >= juegoSeleccionado->dimension || columna2 < 0 || columna2 >= juegoSeleccionado->dimension)
+            if (fila2 < 0 || fila2 >= juegoSeleccionado->dimension || columna2 < 0 || columna2 >= juegoSeleccionado->dimension)
             {
-                printf("Al menos una celda fuera de los límites de la matriz.\n");
-                continue; // Volver al comienzo del bucle para pedir la entrada nuevamente
+                printf("Al menos una celda fuera de los limites de la matriz.\n");
+                printf("Intentelo nuevamente...\n");
+                continue;
             }
-
+            mostrarMatrizConCeldaVisible(juegoSeleccionado, fila2, columna2);
+            juegoSeleccionado->matriz[fila2][columna2].encontrada = true;
             // Validar que las coordenadas no sean las mismas
             if (fila1 == fila2 && columna1 == columna2)
             {
@@ -533,12 +542,14 @@ void jugar2(juego *juegoSeleccionado)
         if (strcmp(juegoSeleccionado->matriz[fila1][columna1].texto, juegoSeleccionado->matriz[fila2][columna2].texto) == 0)
         {
             // Las palabras son iguales, forman un par
-            printf("¡Has encontrado un par!\n");
+            printf("Has encontrado un par!\n");
             puntaje++;
         }
         else
         {
             // Las palabras no son iguales
+            juegoSeleccionado->matriz[fila1][columna1].encontrada = false;
+            juegoSeleccionado->matriz[fila2][columna2].encontrada = false;
             printf("No es un par.\n");
         }
 
@@ -549,6 +560,7 @@ void jugar2(juego *juegoSeleccionado)
 
     // Mostrar el resultado final del juego
     printf("Juego terminado. Puntaje final: %d\n", puntaje);
+    system("pause");
 }
 
 juego *elegirJuegoAleatorio(ListaJuegos *juegos)
@@ -577,20 +589,4 @@ juego *elegirJuegoAleatorio(ListaJuegos *juegos)
             juegoSeleccionado = juegoSeleccionado->siguiente;
     }
     return juegoSeleccionado->juego;
-}
-
-bool compararCeldas()
-{
-    char cadena1[] = "Hola";
-    char cadena2[] = "Hola";
-
-    if (strcmp(cadena1, cadena2) == 0)
-    {
-        printf("Las cadenas son iguales.\n");
-    }
-    else
-    {
-        printf("Las cadenas son diferentes.\n");
-    }
-    return true;
 }
