@@ -66,6 +66,7 @@ juego *crearJuegoRapido(int *numero, ListaJuegos *juegos);
 
 // Prototipo de funciones - Liberar memoria
 void liberarListaJuegos(ListaJuegos *listaJuegos);
+
 int main()
 {
     int opcion;
