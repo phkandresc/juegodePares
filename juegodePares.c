@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
+// globales
 #define MAX_PARTICIPANTES 10
 #define MAX_MATRIZ 10
 typedef struct palabra
